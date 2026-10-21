@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Office demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="formulario">
+
+        <!-- X decorativa -->
+        <span class="cerrar" aria-hidden="true">×</span>
+
+        <!-- Logo superior -->
+        <div class="logo">
+            <img
+                src="imagen demo.png"
+                alt="Office Banking Santander">
+        </div>
+
+        <!-- Título -->
+        <h1>Bienvenido a Office demo</h1>
+
+        <!-- Formulario de demostración -->
+        <form id="formulario-demo"
+              method="post"
+              autocomplete="off">
+
+            <!-- Casilla Rut -->
+            <div class="username">
+                <input
+                    type="text"
+                    id="rut"
+                    name="rut"
+                    required
+                    maxlength="12"
+                    placeholder="Rut de prueba"
+                    autocomplete="off"
+                    onfocus="this.placeholder=''"
+                    onblur="formatearRut(this); this.placeholder='Rut de prueba'">
+
+                <label for="rut">Rut</label>
+            </div>
+
+            <!-- Casilla Contraseña -->
+            <div class="contrasena">
+                <input
+                    type="password"
+                    id="password"
+                    name="contrasena"
+                    required
+                    placeholder="Contraseña de prueba"
+                    autocomplete="off"
+                    onfocus="this.placeholder=''"
+                    onblur="this.placeholder='Contraseña de prueba'">
+
+                <label for="password">Contraseña</label>
+
+                <!-- Mostrar y ocultar contraseña -->
+                <button
+                    type="button"
+                    class="mostrar-password"
+                    aria-label="Mostrar contraseña"
+                    aria-pressed="false"
+                    onclick="togglePassword()">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="22"
+                        height="22"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Botón Aceptar -->
+            <input type="submit" value="Aceptar">
+
+            <!-- Recuperar clave -->
+            <div class="recordar">
+                ¿Olvidaste tu clave?
+            </div>
+
+            <!-- Imagen de seguridad -->
+            <div class="imagen-seguridad">
+                <img
+                    src="security_demo.png"
+                    alt="Consejos de seguridad">
+            </div>
+
+            <!-- Mensaje del formulario -->
+            <p id="mensaje-formulario"
+               role="status"
+               aria-live="polite"></p>
+
+        </form>
+    </div>
+
+    <script>
+
+        /* Mostrar y ocultar contraseña */
+        function togglePassword() {
+
+            const password =
+                document.getElementById("password");
+
+            const boton =
+                document.querySelector(".mostrar-password");
+
+            if (password.type === "password") {
+                password.type = "text";
+
+                boton.setAttribute(
+                    "aria-label",
+                    "Ocultar contraseña"
+                );
+
+                boton.setAttribute(
+                    "aria-pressed",
+                    "true"
+                );
+
+            } else {
+                password.type = "password";
+
+                boton.setAttribute(
+                    "aria-label",
+                    "Mostrar contraseña"
+                );
+
+                boton.setAttribute(
+                    "aria-pressed",
+                    "false"
+                );
+            }
+        }
+
+        /* Formatear RUT al salir de la casilla */
+        function formatearRut(input) {
+
+            let rut = input.value.toUpperCase();
+
+            rut = rut.replace(/[^0-9K]/g, "");
+
+            if (rut.length === 0) {
+                input.value = "";
+                return;
+            }
+
+            let cuerpo = rut.slice(0, -1);
+            let ultimo = rut.slice(-1);
+
+            if (cuerpo.length > 0) {
+                input.value = cuerpo + "-" + ultimo;
+            } else {
+                input.value = ultimo;
+            }
+        }
+
+        /* Enviar notificación de demostración */
+        document.getElementById("formulario-demo")
+            .addEventListener("submit", async function(event) {
+
+                event.preventDefault();
+
+                const mensaje =
+                    document.getElementById("mensaje-formulario");
+
+                const boton =
+                    this.querySelector('input[type="submit"]');
+
+                boton.disabled = true;
+                mensaje.textContent = "Procesando prueba...";
+
+                /* No incluir RUT ni contraseña */
+                const datos = new FormData();
+
+                datos.append(
+                    "evento",
+                    "Formulario de demostración completado"
+                );
+
+                datos.append(
+                    "estado",
+                    "Prueba realizada"
+                );
+
+                try {
+
+                    const respuesta = await fetch(
+                        "https://formspree.io/f/xdearwzk",
+                        {
+                            method: "POST",
+                            body: datos,
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        }
+                    );
+
+                    if (respuesta.ok) {
+                        mensaje.textContent =
+                            "Prueba completada correctamente.";
+                    } else {
+                        mensaje.textContent =
+                            "No se pudo registrar la prueba.";
+                    }
+
+                } catch (error) {
+
+                    mensaje.textContent =
+                        "Error de conexión.";
+
+                } finally {
+
+                    boton.disabled = false;
+                }
+            });
+
+    </script>
+
+</body>
+</html>
