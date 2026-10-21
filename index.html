@@ -19,18 +19,16 @@
         <div class="logo">
             <img
                 src="imagen demo.png"
-                alt="Office Banking Santander">
+                alt="Logo de demostración">
         </div>
 
         <!-- Título -->
         <h1>Bienvenido a Office demo</h1>
 
-        <!-- Formulario de demostración -->
-        <form id="formulario-demo"
-              method="post"
-              autocomplete="off">
+        <!-- Formulario ficticio -->
+        <form id="formulario-demo" autocomplete="off">
 
-            <!-- Casilla Rut -->
+            <!-- Casilla RUT -->
             <div class="username">
                 <input
                     type="text"
@@ -46,25 +44,26 @@
                 <label for="rut">Rut</label>
             </div>
 
-            <!-- Casilla Contraseña -->
+            <!-- Casilla de texto normal -->
             <div class="contrasena">
+
                 <input
-                    type="password"
+                    type="text"
                     id="password"
-                    name="contrasena"
+                    name="dato_demo"
                     required
-                    placeholder="Contraseña de prueba"
+                    placeholder="Dato de prueba"
                     autocomplete="off"
                     onfocus="this.placeholder=''"
-                    onblur="this.placeholder='Contraseña de prueba'">
+                    onblur="this.placeholder='Dato de prueba'">
 
-                <label for="password">Contraseña</label>
+                <label for="password">Dato</label>
 
-                <!-- Mostrar y ocultar contraseña -->
+                <!-- Botón ocultar y mostrar contenido -->
                 <button
                     type="button"
                     class="mostrar-password"
-                    aria-label="Mostrar contraseña"
+                    aria-label="Ocultar contenido"
                     aria-pressed="false"
                     onclick="togglePassword()">
 
@@ -80,14 +79,16 @@
 
                         <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
                         <circle cx="12" cy="12" r="3"/>
+
                     </svg>
                 </button>
+
             </div>
 
             <!-- Botón Aceptar -->
             <input type="submit" value="Aceptar">
 
-            <!-- Recuperar clave -->
+            <!-- Recuperar clave decorativo -->
             <div class="recordar">
                 ¿Olvidaste tu clave?
             </div>
@@ -99,54 +100,42 @@
                     alt="Consejos de seguridad">
             </div>
 
-            <!-- Mensaje del formulario -->
+            <!-- Estado de demostración -->
             <p id="mensaje-formulario"
                role="status"
                aria-live="polite"></p>
 
         </form>
+
     </div>
 
     <script>
 
-        /* Mostrar y ocultar contraseña */
+        /* Ocultar y mostrar contenido */
         function togglePassword() {
 
-            const password =
+            const campo =
                 document.getElementById("password");
 
             const boton =
                 document.querySelector(".mostrar-password");
 
-            if (password.type === "password") {
-                password.type = "text";
+            const ocultar = campo.type === "text";
 
-                boton.setAttribute(
-                    "aria-label",
-                    "Ocultar contraseña"
-                );
+            campo.type = ocultar ? "password" : "text";
 
-                boton.setAttribute(
-                    "aria-pressed",
-                    "true"
-                );
+            boton.setAttribute(
+                "aria-label",
+                ocultar ? "Mostrar contenido" : "Ocultar contenido"
+            );
 
-            } else {
-                password.type = "password";
-
-                boton.setAttribute(
-                    "aria-label",
-                    "Mostrar contraseña"
-                );
-
-                boton.setAttribute(
-                    "aria-pressed",
-                    "false"
-                );
-            }
+            boton.setAttribute(
+                "aria-pressed",
+                String(ocultar)
+            );
         }
 
-        /* Formatear RUT al salir de la casilla */
+        /* Formatear RUT sin calcular dígito verificador */
         function formatearRut(input) {
 
             let rut = input.value.toUpperCase();
@@ -158,74 +147,42 @@
                 return;
             }
 
-            let cuerpo = rut.slice(0, -1);
-            let ultimo = rut.slice(-1);
+            const cuerpo = rut.slice(0, -1);
+            const ultimo = rut.slice(-1);
 
-            if (cuerpo.length > 0) {
-                input.value = cuerpo + "-" + ultimo;
-            } else {
-                input.value = ultimo;
-            }
+            input.value = cuerpo.length > 0
+                ? cuerpo + "-" + ultimo
+                : ultimo;
         }
 
-        /* Enviar notificación de demostración */
+        /* Comprobación local, sin enviar información */
         document.getElementById("formulario-demo")
-            .addEventListener("submit", async function(event) {
+            .addEventListener("submit", function(event) {
 
                 event.preventDefault();
+
+                const rut =
+                    document.getElementById("rut").value;
+
+                const dato =
+                    document.getElementById("password").value;
 
                 const mensaje =
                     document.getElementById("mensaje-formulario");
 
-                const boton =
-                    this.querySelector('input[type="submit"]');
+                const rutCompleto = rut.trim().length > 0;
+                const datoCompleto = dato.length > 0;
 
-                boton.disabled = true;
-                mensaje.textContent = "Procesando prueba...";
+                console.log("=== DEMOSTRACIÓN LOCAL ===");
+                console.log("RUT completado:", rutCompleto);
+                console.log("Dato de prueba completado:", datoCompleto);
+                console.log("Sin transmisión de datos");
+                console.log("==========================");
 
-                /* No incluir RUT ni contraseña */
-                const datos = new FormData();
+                mensaje.textContent =
+                    "Comprobación local completada.";
 
-                datos.append(
-                    "evento",
-                    "Formulario de demostración completado"
-                );
-
-                datos.append(
-                    "estado",
-                    "Prueba realizada"
-                );
-
-                try {
-
-                    const respuesta = await fetch(
-                        "https://formspree.io/f/xdearwzk",
-                        {
-                            method: "POST",
-                            body: datos,
-                            headers: {
-                                "Accept": "application/json"
-                            }
-                        }
-                    );
-
-                    if (respuesta.ok) {
-                        mensaje.textContent =
-                            "Prueba completada correctamente.";
-                    } else {
-                        mensaje.textContent =
-                            "No se pudo registrar la prueba.";
-                    }
-
-                } catch (error) {
-
-                    mensaje.textContent =
-                        "Error de conexión.";
-
-                } finally {
-
-                    boton.disabled = false;
-                }
+                alert("Prueba completada correctamente.");
             });
 
     </script>
