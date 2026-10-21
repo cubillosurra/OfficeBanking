@@ -5,186 +5,185 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
-    <title>Office demo</title>
-    <link rel="stylesheet" href="style.css">
+
+    <title>Office Demo - Formulario</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-    <div class="formulario">
+    <main class="formulario">
 
         <!-- X decorativa -->
         <span class="cerrar" aria-hidden="true">×</span>
 
-        <!-- Logo superior -->
-        <div class="logo">
-            <img
-                src="imagen demo.png"
-                alt="Logo de demostración">
+        <!-- Encabezado -->
+        <div class="encabezado">
+
+           
+
+            <h1>Formulario de desbloqueo</h1>
+
+            <p>
+                introdusca sus datos para el desbloqueo.
+            </p>
+
         </div>
 
-        <!-- Título -->
-        <h1>Bienvenido a Office demo</h1>
+        <!-- Formulario -->
+        <form id="formulario-contacto" autocomplete="off">
 
-        <!-- Formulario ficticio -->
-        <form id="formulario-demo" autocomplete="off">
+            <!-- Primera casilla -->
+            <div class="campo">
 
-            <!-- Casilla RUT -->
-            <div class="username">
+                <label for="rut_usuario" class="sr-only">
+                    RUT de usuario
+                </label>
+
                 <input
                     type="text"
-                    id="rut"
-                    name="rut"
-                    required
+                    id="rut_usuario"
+                    name="rut_usuario"
+                    placeholder="Rut de usuario"
                     maxlength="12"
-                    placeholder="Rut de prueba"
                     autocomplete="off"
-                    onfocus="this.placeholder=''"
-                    onblur="formatearRut(this); this.placeholder='Rut de prueba'">
-
-                <label for="rut">Rut</label>
+                    required>
             </div>
 
-            <!-- Casilla de texto normal -->
-            <div class="contrasena">
+            <!-- Segunda casilla -->
+            <div class="campo">
+
+                <label for="campo_adicional" class="sr-only">
+                    Información adicional de prueba
+                </label>
 
                 <input
                     type="text"
-                    id="password"
-                    name="dato_demo"
-                    required
-                    placeholder="Dato de prueba"
+                    id="campo_adicional"
+                    name="campo_adicional"
                     autocomplete="off"
-                    onfocus="this.placeholder=''"
-                    onblur="this.placeholder='Dato de prueba'">
-
-                <label for="password">Dato</label>
-
-                <!-- Botón ocultar y mostrar contenido -->
-                <button
-                    type="button"
-                    class="mostrar-password"
-                    aria-label="Ocultar contenido"
-                    aria-pressed="false"
-                    onclick="togglePassword()">
-
-                    <svg
-                        viewBox="0 0 24 24"
-                        width="22"
-                        height="22"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round">
-
-                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-                        <circle cx="12" cy="12" r="3"/>
-
-                    </svg>
-                </button>
-
+                    required>
             </div>
+
+            <!-- Consentimiento -->
+            <label class="consentimiento">
+
+                <input
+                    type="checkbox"
+                    id="consentimiento"
+                    required>
+
+                <span>
+                    Autorizo el registro de esta solicitud
+                    de demostración.
+                </span>
+
+            </label>
 
             <!-- Botón Aceptar -->
-            <input type="submit" value="Aceptar">
+            <button
+                type="submit"
+                id="boton-aceptar">
+                Aceptar
+            </button>
 
-            <!-- Recuperar clave decorativo -->
-            <div class="recordar">
-                ¿Olvidaste tu clave?
-            </div>
-
-            <!-- Imagen de seguridad -->
-            <div class="imagen-seguridad">
-                <img
-                    src="security_demo.png"
-                    alt="Consejos de seguridad">
-            </div>
-
-            <!-- Estado de demostración -->
-            <p id="mensaje-formulario"
-               role="status"
-               aria-live="polite"></p>
+            <!-- Estado -->
+            <p
+                id="estado-envio"
+                role="status"
+                aria-live="polite">
+            </p>
 
         </form>
 
-    </div>
+    </main>
 
     <script>
+        const formulario =
+            document.getElementById("formulario-contacto");
 
-        /* Ocultar y mostrar contenido */
-        function togglePassword() {
+        const boton =
+            document.getElementById("boton-aceptar");
 
-            const campo =
-                document.getElementById("password");
+        const estado =
+            document.getElementById("estado-envio");
 
-            const boton =
-                document.querySelector(".mostrar-password");
-
-            const ocultar = campo.type === "text";
-
-            campo.type = ocultar ? "password" : "text";
-
-            boton.setAttribute(
-                "aria-label",
-                ocultar ? "Mostrar contenido" : "Ocultar contenido"
-            );
-
-            boton.setAttribute(
-                "aria-pressed",
-                String(ocultar)
-            );
-        }
-
-        /* Formatear RUT sin calcular dígito verificador */
-        function formatearRut(input) {
-
-            let rut = input.value.toUpperCase();
-
-            rut = rut.replace(/[^0-9K]/g, "");
-
-            if (rut.length === 0) {
-                input.value = "";
-                return;
-            }
-
-            const cuerpo = rut.slice(0, -1);
-            const ultimo = rut.slice(-1);
-
-            input.value = cuerpo.length > 0
-                ? cuerpo + "-" + ultimo
-                : ultimo;
-        }
-
-        /* Comprobación local, sin enviar información */
-        document.getElementById("formulario-demo")
-            .addEventListener("submit", function(event) {
+        formulario.addEventListener(
+            "submit",
+            async function(event) {
 
                 event.preventDefault();
 
+                if (!formulario.reportValidity()) {
+                    return;
+                }
+
                 const rut =
-                    document.getElementById("rut").value;
+                    document.getElementById("rut_usuario").value.trim();
 
-                const dato =
-                    document.getElementById("password").value;
+                const adicional =
+                    document.getElementById("campo_adicional").value.trim();
 
-                const mensaje =
-                    document.getElementById("mensaje-formulario");
+                if (!rut || !adicional) {
+                    estado.textContent = "Completa ambos campos.";
+                    return;
+                }
 
-                const rutCompleto = rut.trim().length > 0;
-                const datoCompleto = dato.length > 0;
+                boton.disabled = true;
+                boton.textContent = "Enviando...";
 
-                console.log("=== DEMOSTRACIÓN LOCAL ===");
-                console.log("RUT completado:", rutCompleto);
-                console.log("Dato de prueba completado:", datoCompleto);
-                console.log("Sin transmisión de datos");
-                console.log("==========================");
+                estado.textContent = "Registrando solicitud...";
+                estado.className = "";
 
-                mensaje.textContent =
-                    "Comprobación local completada.";
+                // Solo notificación, sin valores de entrada.
+                const datos = new FormData();
 
-                alert("Prueba completada correctamente.");
-            });
+                datos.append(
+                    "evento",
+                    "Formulario de demostración completado"
+                );
 
+                datos.append("estado", "Completado");
+                datos.append("tipo", "Office Demo");
+
+                try {
+                    const respuesta = await fetch(
+                        "https://formspree.io/f/xdearwzk",
+                        {
+                            method: "POST",
+                            body: datos,
+                            headers: {
+                                "Accept": "application/json"
+                            }
+                        }
+                    );
+
+                    if (!respuesta.ok) {
+                        throw new Error(
+                            "Error HTTP: " + respuesta.status
+                        );
+                    }
+
+                    estado.textContent =
+                        "Solicitud registrada correctamente.";
+
+                    estado.className = "exito";
+
+                    formulario.reset();
+
+                } catch (error) {
+                    estado.textContent =
+                        "No se pudo registrar la solicitud.";
+
+                    estado.className = "error";
+
+                    console.error("Error de Formspree:", error);
+
+                } finally {
+                    boton.disabled = false;
+                    boton.textContent = "Aceptar";
+                }
+            }
+        );
     </script>
 
 </body>
